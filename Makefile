@@ -14,6 +14,6 @@ release: build
 	@cd cmd/tlsping && tar -czf tlsping-${TAG}-${OS}-${ARCH}.tar.gz tlsping
 
 clean:
-	@rm -f tlsping tlsping-*.tar.gz cmd/tlsping/tlsping
+	@rm -f cmd/tlsping/tlsping-*.tar.gz cmd/tlsping/tlsping
 
 buildall: clean build

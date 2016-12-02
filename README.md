@@ -5,13 +5,6 @@
 
 It concurrently establishes several network connections, performs the TLS handshake on every one of them, measures the time spent and reports a summary on the observed results.
 
-## Installation
-To build from sources, you need the go programming environment:
-
-```
-go get -u github.com/airnandez/tlsping/...
-```
-
 ## How to use
 Example of usage:
 
@@ -30,6 +23,15 @@ tlsping -version
 ```
 
 For getting details on options do `tlsping --help`.
+
+## Installation
+Download a **binary release** for your target operating system from the [releases page](https://github.com/airnandez/tlsping/releases).
+
+Alternatively, if you prefer to **build from sources**, you need the [Go programming environment](https://golang.org). Do:
+
+```
+go get -u github.com/airnandez/tlsping/...
+```
 
 ## Credits
 

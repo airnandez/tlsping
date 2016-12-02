@@ -1,4 +1,4 @@
-# tlsping — a tool for measuring the TLS handshake latency
+# tlsping — a tool for measuring TLS handshake latency
 
 ## Overview
 `tlsping` is a command line tool to measure the time required to perform [Transport Layer Security (TLS)](https://en.wikipedia.org/wiki/Transport_Layer_Security) connections with a network server.

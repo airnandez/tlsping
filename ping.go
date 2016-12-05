@@ -5,6 +5,7 @@ package tlsping
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -125,7 +126,8 @@ type connectDuration struct {
 // resolveAddr queries the DNS to resolve the name of the host
 // in addr and returns the hostname, IP address and port.
 // If the DNS responds with more than one IP address associated
-// to the given host, the first address is returned.
+// to the given host, the first address to which a TCP connection
+// can be established is returned.
 func resolveAddr(addr string) (string, string, string, error) {
 	host, port, err := net.SplitHostPort(addr)
 	if err != nil {
@@ -135,5 +137,18 @@ func resolveAddr(addr string) (string, string, string, error) {
 	if err != nil {
 		return "", "", "", err
 	}
-	return host, addrs[0], port, nil
+	ipaddr := addrs[0]
+	for _, a := range addrs {
+		if ipaddr = a; ipaddr[0] == ':' {
+			// IPv6 address:
+			ipaddr = fmt.Sprintf("[%s]", ipaddr)
+		}
+		target := fmt.Sprintf("%s:%s", ipaddr, port)
+		conn, err := net.Dial("tcp", target)
+		if err == nil {
+			conn.Close()
+			break
+		}
+	}
+	return host, ipaddr, port, nil
 }

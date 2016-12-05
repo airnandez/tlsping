@@ -67,17 +67,17 @@ func (r *PingResult) StdStr() string {
 }
 
 func secsToString(secs float64) string {
-	if secs > 1.0 {
+	if secs >= 1.0 {
 		// unit is seconds
 		return fmt.Sprintf("%.2fs", secs)
 	}
 	secs = secs * 1000.0
-	if secs > 1.0 {
+	if secs >= 1.0 {
 		// unit is milliseconds
 		return fmt.Sprintf("%.2fms", secs)
 	}
 	secs = secs * 1000.0
-	if secs > 1.0 {
+	if secs >= 1.0 {
 		// unit is µ seconds
 		return fmt.Sprintf("%.2fµs", secs)
 	}

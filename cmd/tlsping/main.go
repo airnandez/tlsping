@@ -40,8 +40,8 @@ func main() {
 		os.Exit(1)
 	}
 	serverAddr := args[0]
-	if *count < 0 {
-		*count *= -1
+	if *count <= 0 {
+		*count = 1
 	}
 	if *count > maxCount {
 		errlog.Printf("number of allowed connections cannot exceed %d\n", maxCount)
@@ -121,6 +121,5 @@ func loadCaCerts(path string) (*x509.CertPool, error) {
 	if !pool.AppendCertsFromPEM(caCerts) {
 		return nil, fmt.Errorf("error creating pool of CA certficates: %s", err)
 	}
-	fmt.Printf("CA pool loaded\n")
 	return pool, nil
 }

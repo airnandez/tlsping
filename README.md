@@ -22,7 +22,7 @@ tlsping -help
 tlsping -version
 ```
 
-For getting details on options do `tlsping --help`.
+For getting details on options do `tlsping -help`.
 
 ## Installation
 Download a **binary release** for your target operating system from the [releases page](https://github.com/airnandez/tlsping/releases).

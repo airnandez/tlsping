@@ -112,7 +112,6 @@ func loadCaCerts(path string) (*x509.CertPool, error) {
 	if path == "" {
 		return nil, nil
 	}
-
 	caCerts, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("error loading CA certficates from '%s': %s", path, err)

@@ -63,9 +63,12 @@ func Ping(addr string, config *Config) (PingResult, error) {
 	}
 	target := ipAddr + ":" + port
 	var f func() error
+	d := &net.Dialer{
+		Timeout: 5 * time.Second,
+	}
 	if config.AvoidTLSHandshake {
 		f = func() error {
-			conn, err := net.Dial("tcp", target)
+			conn, err := d.Dial("tcp", target)
 			if err == nil {
 				conn.Close()
 			}
@@ -78,7 +81,7 @@ func Ping(addr string, config *Config) (PingResult, error) {
 			RootCAs:            config.RootCAs,
 		}
 		f = func() error {
-			conn, err := tls.Dial("tcp", target, &tlsConfig)
+			conn, err := tls.DialWithDialer(d, "tcp", target, &tlsConfig)
 			if err == nil {
 				conn.Close()
 			}
@@ -144,7 +147,10 @@ func resolveAddr(addr string) (string, string, string, error) {
 			ipaddr = fmt.Sprintf("[%s]", ipaddr)
 		}
 		target := fmt.Sprintf("%s:%s", ipaddr, port)
-		conn, err := net.Dial("tcp", target)
+		d := net.Dialer{
+			Timeout: 3 * time.Second,
+		}
+		conn, err := d.Dial("tcp", target)
 		if err == nil {
 			conn.Close()
 			break

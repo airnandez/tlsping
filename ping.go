@@ -5,7 +5,6 @@ package tlsping
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -61,7 +60,7 @@ func Ping(addr string, config *Config) (PingResult, error) {
 	if err != nil {
 		return PingResult{}, err
 	}
-	target := ipAddr + ":" + port
+	target := net.JoinHostPort(ipAddr, port)
 	var f func() error
 	d := &net.Dialer{
 		Timeout: 5 * time.Second,
@@ -136,25 +135,20 @@ func resolveAddr(addr string) (string, string, string, error) {
 	if err != nil {
 		return "", "", "", err
 	}
+	if len(host) == 0 {
+		host = "localhost"
+	}
 	addrs, err := net.LookupHost(host)
 	if err != nil {
 		return "", "", "", err
 	}
-	ipaddr := addrs[0]
+	d := net.Dialer{Timeout: 3 * time.Second}
 	for _, a := range addrs {
-		if ipaddr = a; ipaddr[0] == ':' {
-			// IPv6 address:
-			ipaddr = fmt.Sprintf("[%s]", ipaddr)
-		}
-		target := fmt.Sprintf("%s:%s", ipaddr, port)
-		d := net.Dialer{
-			Timeout: 3 * time.Second,
-		}
-		conn, err := d.Dial("tcp", target)
+		conn, err := d.Dial("tcp", net.JoinHostPort(a, port))
 		if err == nil {
 			conn.Close()
-			break
+			return host, a, port, nil
 		}
 	}
-	return host, ipaddr, port, nil
+	return host, addrs[0], port, nil
 }

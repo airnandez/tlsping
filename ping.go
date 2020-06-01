@@ -1,5 +1,4 @@
-// package tlsping measures ad summarizes the time needed for establishing
-// TLS connections.
+// Package tlsping measures the time needed for establishing TLS connections
 package tlsping
 
 import (
@@ -16,7 +15,7 @@ type Config struct {
 	//  estasblishing the TCP connection
 	AvoidTLSHandshake bool
 
-	// Don't verify server certificate. Used only when
+	// Don't verify server certificate. Used relevant if
 	// the TLS handshake is performed
 	InsecureSkipVerify bool
 
@@ -31,26 +30,14 @@ type Config struct {
 	Count int
 }
 
-// timeit measures the time spent executing the argument function f
-// It returns the elapsed time spent as a floating point number of seconds
-func timeit(f func() error) (float64, error) {
-	start := time.Now()
-	err := f()
-	end := time.Now()
-	if err != nil {
-		return 0, err
-	}
-	return end.Sub(start).Seconds(), nil
-}
-
 // Ping establishes network connections to the specified network addr
 // and returns summary statistics of the time spent establishing those
 // connections. The operation is governed by the provided configuration.
 // It returns an error if at least one of the connections fails.
 // addr is of the form 'hostname:port'
-// The returned results do not include the time spent by calling the
+// The returned results do not include the time spent calling the
 // DNS for translating the host name to IP address. This resolution
-// is performed once and the retrieved IP address is used for all
+// is performed once and a single of retrieved IP addresses is used for all
 // connections.
 func Ping(addr string, config *Config) (PingResult, error) {
 	if config.Count == 0 {
@@ -59,6 +46,11 @@ func Ping(addr string, config *Config) (PingResult, error) {
 	host, ipAddr, port, err := resolveAddr(addr)
 	if err != nil {
 		return PingResult{}, err
+	}
+	result := PingResult{
+		Host:    host,
+		IPAddr:  ipAddr,
+		Address: addr,
 	}
 	target := net.JoinHostPort(ipAddr, port)
 	var f func() error
@@ -113,16 +105,29 @@ func Ping(addr string, config *Config) (PingResult, error) {
 	durations := make([]float64, 0, config.Count)
 	for res := range results {
 		if res.err != nil {
-			return PingResult{}, res.err
+			return result, res.err
 		}
 		durations = append(durations, res.seconds)
 	}
-	return summarize(durations), nil
+	result.setSummaryStats(summarize(durations))
+	return result, nil
 }
 
 type connectDuration struct {
 	seconds float64
 	err     error
+}
+
+// timeit measures the time spent executing the argument function f
+// It returns the elapsed time spent as a floating point number of seconds
+func timeit(f func() error) (float64, error) {
+	start := time.Now()
+	err := f()
+	end := time.Now()
+	if err != nil {
+		return 0, err
+	}
+	return end.Sub(start).Seconds(), nil
 }
 
 // resolveAddr queries the DNS to resolve the name of the host

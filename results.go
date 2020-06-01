@@ -5,9 +5,18 @@ import (
 	"math"
 )
 
-// PingResults contains summary statistics of the measured connection
+// PingResult contains summary statistics of the measured connection
 // times
 type PingResult struct {
+	// Target host name
+	Host string
+
+	// IP Address of the host used for these measurements
+	IPAddr string
+
+	// Address of the target, in the form hostname:port
+	Address string
+
 	// Number of measurements summarized in this result
 	Count int
 
@@ -19,11 +28,21 @@ type PingResult struct {
 	Avg, Std float64
 }
 
+// setSummaryStats sets the summary stats passed as arguments to the ping
+// result
+func (r *PingResult) setSummaryStats(count int, min, max, avg, std float64) {
+	r.Count = count
+	r.Min, r.Max = min, max
+	r.Avg, r.Std = avg, std
+}
+
 // summarize summarizes the measurements of time durations given as
-// argument. The argument values and the returned values are understood
+// argument. The result argument is populated with summary statistics
+// of the durations. The argument values and the returned values are understood
 // in seconds
-func summarize(durations []float64) PingResult {
-	min, max := math.MaxFloat64, math.SmallestNonzeroFloat64
+func summarize(durations []float64) (count int, min, max, avg, std float64) {
+	count = len(durations)
+	min, max = math.MaxFloat64, math.SmallestNonzeroFloat64
 	sum := float64(0)
 	for _, d := range durations {
 		sum += d
@@ -34,20 +53,15 @@ func summarize(durations []float64) PingResult {
 			max = d
 		}
 	}
-	n := float64(len(durations))
-	avg := sum / n
-	std := float64(0)
+	n := float64(count)
+	avg = sum / n
+	std = float64(0)
 	for _, d := range durations {
 		dev := d - avg
 		std += dev * dev
 	}
-	return PingResult{
-		Count: len(durations),
-		Min:   min,
-		Max:   max,
-		Avg:   avg,
-		Std:   math.Sqrt(std / n),
-	}
+	std = math.Sqrt(std / n)
+	return
 }
 
 func (r *PingResult) MinStr() string {

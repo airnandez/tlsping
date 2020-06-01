@@ -60,7 +60,7 @@ func main() {
 		InsecureSkipVerify: *insecure,
 		RootCAs:            caCerts,
 	}
-	summary, err := tlsping.Ping(serverAddr, &config)
+	result, err := tlsping.Ping(serverAddr, &config)
 	if err != nil {
 		errlog.Printf("error connecting to '%s': %s\n", serverAddr, err)
 		os.Exit(1)
@@ -70,25 +70,27 @@ func main() {
 		s = "TCP"
 	}
 	if !*jsonOutput {
-		outlog.Printf("%s connection to server %s (%d connections)\n", s, serverAddr, *count)
-		outlog.Printf("min/avg/max/stddev = %s/%s/%s/%s\n", summary.MinStr(), summary.AvgStr(), summary.MaxStr(), summary.StdStr())
+		outlog.Printf("%s connection to %s (%s) (%d connections)\n", s, serverAddr, result.IPAddr, *count)
+		outlog.Printf("min/avg/max/stddev = %s/%s/%s/%s\n", result.MinStr(), result.AvgStr(), result.MaxStr(), result.StdStr())
 		os.Exit(0)
 	}
 
 	// Format the result in JSON
-	result := JsonResult{
-		ServerAddr: serverAddr,
+	jsonRes := JsonResult{
+		Host:       result.Host,
+		IPAddr:     result.IPAddr,
+		ServerAddr: result.Address,
 		Connection: s,
-		Min:        summary.Min,
-		Max:        summary.Max,
-		Count:      summary.Count,
-		Avg:        summary.Avg,
-		Std:        summary.Std,
+		Min:        result.Min,
+		Max:        result.Max,
+		Count:      result.Count,
+		Avg:        result.Avg,
+		Std:        result.Std,
 	}
 	if err != nil {
-		result.Error = fmt.Sprintf("%s", err)
+		jsonRes.Error = fmt.Sprintf("%s", err)
 	}
-	b, err := json.Marshal(result)
+	b, err := json.Marshal(jsonRes)
 	if err != nil {
 		errlog.Printf("error producing JSON: %s\n", err)
 		os.Exit(1)
@@ -98,7 +100,9 @@ func main() {
 }
 
 type JsonResult struct {
-	ServerAddr string  `json:"server"`
+	Host       string  `json:"host"`
+	IPAddr     string  `json:"ip"`
+	ServerAddr string  `json:"address"`
 	Connection string  `json:"connection"`
 	Count      int     `json:"count"`
 	Min        float64 `json:"min"`

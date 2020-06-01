@@ -28,12 +28,13 @@ of usage.{{else}}
 
 DESCRIPTION:
 {{.Tab1}}{{.AppName}} is a basic tool to measure the time required to establish a
-{{.Tab1}}TCP connection and perform a TLS handshake with a remote server.
+{{.Tab1}}TCP connection and perform the TLS handshake with a remote server.
 {{.Tab1}}It reports summary statistics of the measurements obtained over a number
 {{.Tab1}}of successful connections.
 
 {{.Tab1}}The address of the remote server, i.e. <server address>, is of the form
-{{.Tab1}}'host:port', for instance 'mail.google.com:443'.
+{{.Tab1}}'host:port', for instance 'mail.google.com:443', '216.58.215.37:443' or
+{{.Tab1}}'[2a00:1450:400a:800::2005]:443'.
 
 OPTIONS:
 {{.Tab1}}-c count
@@ -65,8 +66,17 @@ OPTIONS:
 {{.Tab1}}-version
 {{.Tab2}}Show detailed version information about this application
 
-EXAMPLE:
-{{.Tab1}}{{.AppName}} -tcponly mail.google.com:443
+EXAMPLES:
+{{.Tab1}}To measure the time to establish a TCP connection and perform TLS
+{{.Tab1}}handshaking with host 'mail.google.com' port 443 use:
+
+{{.Tab3}}{{.AppName}} mail.google.com:443
+
+{{.Tab1}}To measure the time to establishing a TCP connection (i.e. without
+{{.Tab1}}performing TLS handshaking) to host at IPv6 address
+{{.Tab1}}'2606:4700::6811:d209' port 443 use:
+
+{{.Tab3}}{{.AppName}} -tcponly [2a00:1450:400a:800::2005]:443
 {{end}}
 `
 	if kind == usageLong {
